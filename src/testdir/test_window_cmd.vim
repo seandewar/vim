@@ -186,7 +186,64 @@ func Test_window_curwin_not_prevwin()
   call assert_equal(1, winnr('#'))
 
   tabonly
-  only
+  tab split
+  new foobar
+  tabprevious
+  call assert_equal(1, tabpagenr())
+  call assert_equal(1, tabpagewinnr(2))
+  call assert_equal(2, tabpagewinnr(2, '#'))
+  bwipe! foobar
+  call assert_equal(1, tabpagenr())
+  call assert_equal(1, tabpagewinnr(2))
+  call assert_equal(0, tabpagewinnr(2, '#'))
+
+  if has('quickfix')
+    augroup CurwinPrevwin
+      au!
+      au WinEnter * ++once wincmd p
+    augroup END
+
+    call assert_equal(2, winnr())
+    belowright copen
+    call assert_equal(2, winnr())
+    call assert_equal(0, winnr('#'))
+  endif
+
+  %bwipe!
+  edit unload me
+  enew
+  bunload unload\ me
+  split
+  let s:curwin = win_getid()
+  augroup CurwinPrevwin
+    au!
+    au BufEnter * ++once call assert_equal('autocmd', win_gettype())
+                      \| execute win_id2win(s:curwin) 'quit!'
+  augroup END
+  call bufload('unload me')
+  call assert_equal(1, winnr())
+  call assert_equal(0, winnr('#'))
+  unlet! s:curwin
+
+  %bwipe!
+  tab split
+  split
+  call assert_equal(2, tabpagenr())
+  call assert_equal(1, winnr())
+  call assert_equal(2, winnr('#'))
+  tabprevious
+  augroup CurwinPrevwin
+    au!
+    au WinEnter * ++once wincmd w
+  augroup END
+  tabnext
+  call assert_equal(2, tabpagenr())
+  call assert_equal(2, winnr())
+  call assert_equal(0, winnr('#'))
+
+  au! CurwinPrevwin
+  augroup! CurwinPrevwin
+  %bwipe!
 endfunc
 
 func Test_window_horizontal_split()

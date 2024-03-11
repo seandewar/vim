@@ -1700,6 +1700,9 @@ win_found:
 	    curbuf->b_prompt_insert = aco->save_prompt_insert;
 #endif
 	prevwin = win_find_by_id(aco->save_prevwin_id);
+	if (prevwin == curwin)
+	    prevwin = NULL;
+
 #ifdef FEAT_EVAL
 	vars_clear(&awp->w_vars->dv_hashtab);  // free all w: variables
 	hash_init(&awp->w_vars->dv_hashtab);   // re-use the hashtab

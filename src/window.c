@@ -3444,7 +3444,11 @@ win_free_mem(
     // When deleting the current window in the tab, select a new current
     // window.
     if (win == win_tp->tp_curwin)
+    {
 	win_tp->tp_curwin = wp;
+	if (win_tp->tp_prevwin == wp)
+	    win_tp->tp_prevwin = NULL;
+    }
 
     return wp;
 }
@@ -4903,7 +4907,7 @@ enter_tabpage(
     (void)win_enter_ext(tp->tp_curwin, WEE_CURWIN_INVALID
 		  | (trigger_enter_autocmds ? WEE_TRIGGER_ENTER_AUTOCMDS : 0)
 		  | (trigger_leave_autocmds ? WEE_TRIGGER_LEAVE_AUTOCMDS : 0));
-    prevwin = next_prevwin;
+    prevwin = curwin != next_prevwin ? next_prevwin : NULL;
 
     last_status(FALSE);		// status line may appear or disappear
     row = win_comp_pos();	// recompute w_winrow for all windows

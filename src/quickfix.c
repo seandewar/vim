@@ -4398,7 +4398,7 @@ qf_open_new_cwindow(qf_info_T *qi, int height)
 	win_setheight(height);
     curwin->w_p_wfh = TRUE;	    // set 'winfixheight'
     if (win_valid(win))
-	prevwin = win;
+	prevwin = curwin != win ? win : NULL;
 
     return OK;
 }
