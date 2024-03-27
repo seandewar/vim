@@ -483,15 +483,17 @@ is_other_file(int fnum, char_u *ffname)
   if (*ffname == NUL)
     return FALSE;
 
+  if (!otherfile(ffname))
+      return FALSE;
+
   // TODO: Need a reliable way to know whether a buffer is meant to live on-disk
   // !curbuf->b_dev_valid is not always available (example: missing on Windows)
-  if (curbuf->b_sfname != NULL
-      && *curbuf->b_sfname != NUL)
+  if (curbuf->b_sfname != NULL && *curbuf->b_sfname != NUL)
     // This occurs with unsaved buffers. In which case `ffname`
     // actually corresponds to curbuf->b_sfname
     return fnamecmp(ffname, curbuf->b_sfname) != 0;
 
-  return otherfile(ffname);
+  return TRUE;
 }
 
 /*
