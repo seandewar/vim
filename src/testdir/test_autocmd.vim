@@ -3827,7 +3827,7 @@ endfunc
 func Test_autocmd_closes_window()
   au BufNew,BufWinLeave * e %e
   file yyy
-  au BufNew,BufWinLeave * ball
+  au BufNew,BufWinLeave * silent! ball
   n xxx
 
   %bwipe

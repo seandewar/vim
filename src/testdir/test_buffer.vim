@@ -670,6 +670,26 @@ func Test_closed_buffer_still_in_window()
   augroup END
   bw! " Close only this buffer first; used to be a heap UAF.
   call assert_equal(5, s:fired)
+  %bw!
+
+  edit bleb
+  edit plop
+  edit blorb
+  edit phlam
+  edit phlorb
+  split blorb
+  augroup ViewClosedBuffer
+    autocmd!
+    autocmd BufWipeout * ++once let s:fired += 1
+          \| call assert_fails('ball', 'E1546:')
+  augroup END
+  call assert_equal(['blorb', 'phlorb'],
+        \           tabpagebuflist()->map({_, b -> bufname(b)}))
+  bwipeout!
+  redraw! " Was a heap UAF.
+  " Windows are not opened for closing buffers.
+  call assert_equal(['bleb', 'plop', 'phlam', 'phlorb'],
+        \           tabpagebuflist()->map({_, b -> bufname(b)}))
 
   unlet! s:w s:b s:fired
   autocmd! ViewClosedBuffer

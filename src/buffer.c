@@ -1866,6 +1866,14 @@ set_curbuf(buf_T *buf, int action)
     int		valid;
     int		last_winid = get_last_winid();
 
+    // Disallow navigating to a closing buffer; like splitting, it can result in
+    // more windows displaying it.
+    if (buf != curbuf && buf->b_locked_split)
+    {
+	emsg(_(e_cannot_switch_to_a_closing_buffer));
+	return;
+    }
+
     setpcmark();
     if ((cmdmod.cmod_flags & CMOD_KEEPALT) == 0)
 	curwin->w_alt_fnum = curbuf->b_fnum; // remember alternate file
@@ -5653,6 +5661,11 @@ ex_buffer_all(exarg_T *eap)
 	{
 	    bufref_T	bufref;
 
+	    if (buf->b_locked_split)
+	    {
+		emsg(_(e_cannot_switch_to_a_closing_buffer));
+		continue;
+	    }
 	    set_bufref(&bufref, buf);
 
 	    // Split the window and put the buffer in it

@@ -3121,11 +3121,15 @@ do_ecmd(
 		if (buf == curbuf)		// already in new buffer
 		{
 		    // close_buffer() has decremented the window count,
-		    // increment it again here and restore w_buffer.
-		    if (did_decrement && buf_valid(was_curbuf))
-			++was_curbuf->b_nwindows;
-		    if (win_valid_any_tab(oldwin) && oldwin->w_buffer == NULL)
+		    // increment it again here if we can restore w_buffer.
+		    if (did_decrement && buf_valid(was_curbuf)
+			    && win_valid_any_tab(oldwin)
+			    && (oldwin->w_buffer == NULL
+				|| oldwin->w_buffer == was_curbuf))
+		    {
 			oldwin->w_buffer = was_curbuf;
+			++was_curbuf->b_nwindows;
+		    }
 		    auto_buf = TRUE;
 		}
 		else

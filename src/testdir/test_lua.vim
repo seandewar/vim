@@ -1278,4 +1278,20 @@ func Test_lua_funcref_with_params()
   call assert_true(v:true)
 endfunc
 
+func Test_lua_buffer_switch_to_closing()
+  lua b = vim.open('foo')
+  call assert_notequal(bufnr(), luaeval('b.number'))
+  augroup BufferSwitch
+    autocmd!
+    autocmd BufWipeout * ++once split
+          \| call assert_fails('lua fired = true; b()', 'E1546:') | wincmd p
+  augroup END
+  execute luaeval('b.number') 'bwipeout!'
+  call assert_true(luaeval('fired'))
+  redraw! " Was a heap UAF.
+
+  autocmd! BufferSwitch
+  %bw
+endfunc
+
 " vim: shiftwidth=2 sts=2 expandtab
